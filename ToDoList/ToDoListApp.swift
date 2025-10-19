@@ -14,8 +14,15 @@ struct ToDoListApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            NavigationStack(
+                root: {
+                    ListView()
+                        .environment(
+                            \.managedObjectContext,
+                             persistenceController.container.viewContext
+                        )
+                }
+            )
         }
     }
 }
