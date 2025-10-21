@@ -32,6 +32,7 @@ final class ToDoViewModel: ObservableObject {
 
 struct ToDoView: View {
     @StateObject var viewModel: ToDoViewModel
+   
     
     let completion: (ToDo) -> Void
     
@@ -61,14 +62,13 @@ struct ToDoView: View {
                             completion(viewModel.todo)
                         },
                         label: {
-                            
-                                Image(systemName: "chevron.left")
-                                    .bold()
-                                    .font(.system(size: 22))
-                                    .foregroundStyle(.yellow)
-                                Text("Назад")
-                                    .foregroundStyle(.yellow)
-                                    .font(.headline)
+                            Image(systemName: "chevron.left")
+                                .bold()
+                                .font(.system(size: 22))
+                                .foregroundStyle(.yellow)
+                            Text("Назад")
+                                .foregroundStyle(.yellow)
+                                .font(.headline)
                         }
                     )
                     Spacer()
@@ -78,14 +78,15 @@ struct ToDoView: View {
                 
                 
                 TextEditor(text: $viewModel.todo.todo)
+                   // .frame(height: 250)
+                    
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
-                    .padding(.leading, 15)
-                    .padding(.trailing, 15)
+                    .border(.gray.opacity(0.5))
+                    .padding(.horizontal, 15)
                 
                 Text(viewModel.todo.date ?? "--/--/--")
                     .padding(.leading, 5)
-                    .border(.black)
                     .padding(.vertical, 10)
                 
                 
@@ -95,13 +96,12 @@ struct ToDoView: View {
                         set: { viewModel.todo.description = $0 }
                     )
                 )
-                .padding(.leading, 15)
-                .padding(.trailing, 15)
+                .border(.gray.opacity(0.5))
+                .padding(.horizontal, 15)
                 .padding(.vertical, 10)
                 .keyboardType(.namePhonePad)
                
                 }
-                .border(.black)
                 Spacer()
             }
         //.padding(.leading, 5)

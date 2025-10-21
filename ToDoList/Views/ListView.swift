@@ -11,6 +11,7 @@ import Combine
 
 struct ListView: View {
     @StateObject var viewModel = ListViewModel()
+    @State private var isShareSheetPresented = false
 
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
@@ -24,8 +25,9 @@ struct ListView: View {
         NavigationView {
             contentView
                 .onAppear(perform: viewModel.loadTasks)
+                .navigationTitle(Text("Задача"))
         }
-        .navigationTitle(Text("Задача"))
+       
         .navigationDestination(
             isPresented: $viewModel.createViewPresented,
             destination: {
@@ -51,68 +53,95 @@ struct ListView: View {
     var contentView: some View {
         VStack(alignment: .leading, spacing: 0) {
             searchView
-                .border(.blue)
             listView
             Spacer()
             bottomView
         }
-        .border(.black)
+ 
     }
 
     var searchView: some View {
-        TextField(
-            text: $viewModel.searchText,
-            prompt: Text("Поиск")
-        ) {
-            Text(viewModel.searchText)
-        }
-        .frame(height: 36)
-        .padding(.horizontal, 5)
-        .background(.gray.opacity(0.5))
-        .cornerRadius(16)
-        .padding(.horizontal, 15)
-        .padding(.bottom, 15)
+        TextField("Search", text: $viewModel.searchText)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 36)
+            .background(Color.gray.opacity(0.3))
+            .cornerRadius(10)
+            .overlay {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.gray)
+                        .padding(.leading, 10)
+                    
+                    Spacer()
+                
+                    Image(systemName: "mic.fill")
+                        .foregroundStyle(.gray)
+                        .padding(.trailing, 10)
+                }
+            }
+            .padding(.horizontal, 15)
+            .padding(.bottom, 15)
     }
 
     var listView: some View {
         ScrollView {
             ForEach(viewModel.filteredToDoList) { toDo in
-                VStack(alignment: .leading) {
-                    HStack(alignment: .top) {
-                        Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
-                            .font(.system(size: 24))
-                            .foregroundStyle(toDo.completed ? .yellow : .gray)
+                Button(
+                    action: {
+                        viewModel.editViewPresented = toDo
+                           
+                    },
+                    label: {
                         VStack(alignment: .leading) {
-                            Text(toDo.todo)
-                                .strikethrough(toDo.completed)
-                            Text(toDo.description ?? "-")
-                            Text(toDo.date ?? "-")
+                            HStack(alignment: .top) {
+                                Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(toDo.completed ? .yellow : .gray)
+                                
+                                VStack(alignment: .leading) {
+                                    Text(toDo.todo)
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .strikethrough(toDo.completed)
+                                    
+                                    Text(toDo.description ?? "-")
+                                    Text(toDo.date ?? "-")
+                                }
+                                Spacer()
+                            }
                         }
-                        Spacer()
-                    }
-                }
-                .contextMenu(
-                    menuItems: {
-                        Button(
-                            action: {
-                                viewModel.editViewPresented = toDo
-                            },
-                            label: {
-                                Text("Редактировать")
-                            }
-                        )
-
-                        Button(
-                            action: {
-                                viewModel.deleteToDo(id: toDo.id)
-                            },
-                            label: {
-                                Text("Удалить")
-                                    .foregroundStyle(.red)
-                            }
-                        )
                     }
                 )
+               
+                .contextMenu {
+                    Button {
+                        viewModel.editViewPresented = toDo
+                    } label: {
+                        HStack {
+                            Text("Редактировать")
+                            Spacer()
+                            Image(systemName: "square.and.pencil")
+                        }
+                        .frame(maxWidth: .infinity) 
+                    }
+                    
+                    Divider()
+
+                    Button {
+                        //  код для shareSheet
+                    } label: {
+                        Label("Поделиться", systemImage: "square.and.arrow.up")
+                           
+                    }
+                    Divider()
+
+                    Button(role: .destructive) {
+                        viewModel.deleteToDo(id: toDo.id)
+                    } label: {
+                        Label("Удалить", systemImage: "trash")
+                          
+                    }
+                }
             }
         }
         .padding(.horizontal, 20)
