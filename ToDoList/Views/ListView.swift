@@ -12,22 +12,22 @@ import Combine
 struct ListView: View {
     @StateObject var viewModel = ListViewModel()
     @State private var isShareSheetPresented = false
-
+    
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
         animation: .default
     )
-
+    
     private var items: FetchedResults<Item>
-
+    
     var body: some View {
         NavigationView {
             contentView
                 .onAppear(perform: viewModel.loadTasks)
-                .navigationTitle(Text("Задача"))
+                .navigationTitle(Text("Задачи"))
         }
-       
+        
         .navigationDestination(
             isPresented: $viewModel.createViewPresented,
             destination: {
@@ -49,22 +49,28 @@ struct ListView: View {
             }
         )
     }
-
+    
     var contentView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            searchView
-            listView
-            Spacer()
-            bottomView
+        VStack(alignment: .center) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    searchView
+                    listView
+                        .padding(.bottom, 80)
+                }
+            }
+                bottomView
+            }
+        
         }
- 
-    }
-
+    
+    
+    
     var searchView: some View {
         TextField("Search", text: $viewModel.searchText)
             .padding(.vertical, 8)
             .padding(.horizontal, 36)
-            .background(Color.gray.opacity(0.3))
+            .background(Color.gray.opacity(0.5))
             .cornerRadius(10)
             .overlay {
                 HStack {
@@ -73,7 +79,7 @@ struct ListView: View {
                         .padding(.leading, 10)
                     
                     Spacer()
-                
+                    
                     Image(systemName: "mic.fill")
                         .foregroundStyle(.gray)
                         .padding(.trailing, 10)
@@ -82,92 +88,82 @@ struct ListView: View {
             .padding(.horizontal, 15)
             .padding(.bottom, 15)
     }
-
+    
     var listView: some View {
-        ScrollView {
+        LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(viewModel.filteredToDoList) { toDo in
-                Button(
-                    action: {
-                        viewModel.editViewPresented = toDo
-                           
-                    },
-                    label: {
+                VStack(alignment: .leading) {
+                    HStack(alignment: .top) {
+                        Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
+                            .font(.system(size: 24))
+                            .foregroundStyle(toDo.completed ? .yellow : .gray)
+                        
                         VStack(alignment: .leading) {
-                            HStack(alignment: .top) {
-                                Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
-                                    .font(.system(size: 24))
-                                    .foregroundStyle(toDo.completed ? .yellow : .gray)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(toDo.todo)
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .strikethrough(toDo.completed)
-                                    
-                                    Text(toDo.description ?? "-")
-                                    Text(toDo.date ?? "-")
-                                }
-                                Spacer()
-                            }
+                            Text(toDo.todo)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .strikethrough(toDo.completed)
+                            Text(toDo.description ?? "-")
+                            Text(toDo.date ?? "-")
                         }
                     }
-                )
-               
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                        .padding(.vertical, 4)
+                }
+                .padding(.horizontal, 20)
+                .onTapGesture {
+                    viewModel.editViewPresented = toDo
+                }
                 .contextMenu {
                     Button {
                         viewModel.editViewPresented = toDo
                     } label: {
-                        HStack {
-                            Text("Редактировать")
-                            Spacer()
-                            Image(systemName: "square.and.pencil")
-                        }
-                        .frame(maxWidth: .infinity) 
+                        Label("Редактировать", systemImage: "square.and.pencil")
                     }
                     
-                    Divider()
-
                     Button {
-                        //  код для shareSheet
+                        // shareSheet
                     } label: {
                         Label("Поделиться", systemImage: "square.and.arrow.up")
-                           
                     }
-                    Divider()
-
+                    
                     Button(role: .destructive) {
                         viewModel.deleteToDo(id: toDo.id)
                     } label: {
                         Label("Удалить", systemImage: "trash")
-                          
                     }
                 }
             }
         }
-        .padding(.horizontal, 20)
     }
-
+    
+    
     var bottomView: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Spacer()
-                .frame(width: 68, height: 44)
-            Spacer()
-            Text("\(viewModel.toDoList.count) задач")
-            Spacer()
-            Button(
-                action: {
-                    viewModel.createViewPresented = true
-                },
-                label: {
-                    Image(systemName: "square.and.pencil")
-                        .font(.system(size: 22))
-                        .foregroundStyle(.yellow)
-                        .frame(width: 68, height: 44)
-                }
-            )
+        ZStack {
+            HStack(alignment: .center, spacing: 0) {
+                Spacer()
+                    .frame(width: 68, height: 44)
+                Spacer()
+                Text("\(viewModel.toDoList.count) задач")
+                Spacer()
+                Button(
+                    action: {
+                        viewModel.createViewPresented = true
+                    },
+                    label: {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 22))
+                            .foregroundStyle(.yellow)
+                            .frame(width: 68, height: 44)
+                    }
+                )
+            }
+            .background(Color.gray)
         }
     }
 }
+
 
 #Preview {
     ListView()

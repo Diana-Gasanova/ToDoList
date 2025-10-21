@@ -14,6 +14,4 @@ struct ToDo: Decodable, Hashable, Identifiable {
     var description: String?
     let date: String?
     let userId: Int
-
-    
 }

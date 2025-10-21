@@ -50,6 +50,14 @@ struct ToDoView: View {
     var body: some View {
         contentView
             .navigationBarBackButtonHidden()
+            .onTapGesture {
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder),
+                    to: nil,
+                    from: nil,
+                    for: nil
+                )
+            }
     }
     
     var contentView: some View {
@@ -78,12 +86,14 @@ struct ToDoView: View {
                 
                 
                 TextEditor(text: $viewModel.todo.todo)
-                   // .frame(height: 250)
-                    
+                    .frame(minHeight: 50)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
-                    .border(.gray.opacity(0.5))
                     .padding(.horizontal, 15)
+                    .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                        )
                 
                 Text(viewModel.todo.date ?? "--/--/--")
                     .padding(.leading, 5)
@@ -96,15 +106,17 @@ struct ToDoView: View {
                         set: { viewModel.todo.description = $0 }
                     )
                 )
-                .border(.gray.opacity(0.5))
                 .padding(.horizontal, 15)
                 .padding(.vertical, 10)
                 .keyboardType(.namePhonePad)
+                .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    )
                
                 }
                 Spacer()
             }
-        //.padding(.leading, 5)
         }
 }
 
