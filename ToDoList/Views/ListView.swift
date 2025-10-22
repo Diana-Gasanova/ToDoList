@@ -11,8 +11,6 @@ import Combine
 
 struct ListView: View {
     @StateObject var viewModel = ListViewModel()
-    @State private var isShareSheetPresented = false
-    
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -27,7 +25,6 @@ struct ListView: View {
                 .onAppear(perform: viewModel.loadTasks)
                 .navigationTitle(Text("Задачи"))
         }
-        
         .navigationDestination(
             isPresented: $viewModel.createViewPresented,
             destination: {
@@ -56,15 +53,12 @@ struct ListView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     searchView
                     listView
-                        .padding(.bottom, 80)
+                        .padding(.bottom, 8)
                 }
             }
                 bottomView
             }
-        
         }
-    
-    
     
     var searchView: some View {
         TextField("Search", text: $viewModel.searchText)
@@ -104,11 +98,11 @@ struct ListView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .strikethrough(toDo.completed)
                             Text(toDo.description ?? "-")
-                            Text(toDo.date ?? "-")
+                            Text(toDo.date ?? "--/--/--")
                         }
                     }
                     Divider()
-                        .background(Color.gray.opacity(0.3))
+                        .background(Color.green)
                         .padding(.vertical, 4)
                 }
                 .padding(.horizontal, 20)
@@ -123,7 +117,7 @@ struct ListView: View {
                     }
                     
                     Button {
-                        // shareSheet
+//                        viewModel.isShareSheetPresented = true
                     } label: {
                         Label("Поделиться", systemImage: "square.and.arrow.up")
                     }
@@ -140,30 +134,47 @@ struct ListView: View {
     
     
     var bottomView: some View {
-        ZStack {
-            HStack(alignment: .center, spacing: 0) {
-                Spacer()
-                    .frame(width: 68, height: 44)
-                Spacer()
-                Text("\(viewModel.toDoList.count) задач")
-                Spacer()
-                Button(
-                    action: {
+            ZStack(alignment: .top) {
+           
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .overlay (
+                        Rectangle()
+                            .fill(Color.white.opacity(0.9))
+                            .frame(height: 0.5),
+                        alignment: .top
+                    )
+                    .ignoresSafeArea(edges: .bottom)
+
+                HStack {
+                    Spacer()
+                        .frame(width: 68) // выравнивание слева
+
+                    Spacer()
+
+                    Text("\(viewModel.toDoList.count) Задач")
+                        .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(Color(UIColor.label))
+
+                    Spacer()
+
+                    Button(action: {
                         viewModel.createViewPresented = true
-                    },
-                    label: {
+                    }) {
                         Image(systemName: "square.and.pencil")
                             .font(.system(size: 22))
                             .foregroundStyle(.yellow)
                             .frame(width: 68, height: 44)
                     }
-                )
+                }
+                
+                .padding(.horizontal, 8)
+                .padding(.bottom, 6)
             }
-            .background(Color.gray)
+            .frame(height: 60)
+            .frame(maxWidth: .infinity)
         }
-    }
 }
-
 
 #Preview {
     ListView()

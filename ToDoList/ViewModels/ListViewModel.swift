@@ -15,6 +15,7 @@ struct TodoResponse: Decodable {
 final class ListViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var createViewPresented = false
+    @Published var isShareSheetPresented = false
     @Published var editViewPresented: ToDo?
     @Published var toDoList: [ToDo] = []
 
