@@ -10,19 +10,9 @@ import CoreData
 
 @main
 struct ToDoListApp: App {
-    let persistenceController = PersistenceController.shared
-
     var body: some Scene {
         WindowGroup {
-            NavigationStack(
-                root: {
-                    ListView()
-                        .environment(
-                            \.managedObjectContext,
-                             persistenceController.container.viewContext
-                        )
-                }
-            )
+            NavigationStack(root: { ListView() })
         }
     }
 }

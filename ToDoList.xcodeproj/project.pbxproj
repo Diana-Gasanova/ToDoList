@@ -15,6 +15,7 @@
 		565D217F2EA51BA20022CFDA /* ToDo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565D217E2EA51BA20022CFDA /* ToDo.swift */; };
 		565D21B32EA520F10022CFDA /* ToDoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565D21B22EA520F10022CFDA /* ToDoView.swift */; };
 		565D21B62EA5210A0022CFDA /* ListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565D21B52EA5210A0022CFDA /* ListViewModel.swift */; };
+		88CBCC522EAA9A3900BE968F /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CBCC512EAA9A3900BE968F /* StorageService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		565D21B22EA520F10022CFDA /* ToDoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoView.swift; sourceTree = "<group>"; };
 		565D21B52EA5210A0022CFDA /* ListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewModel.swift; sourceTree = "<group>"; };
 		882A473D2E9F8F03002CBB80 /* ToDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		88CBCC512EAA9A3900BE968F /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				565D216E2EA50FC10022CFDA /* Assets.xcassets */,
+				88CBCC502EAA9A2000BE968F /* Services */,
 				565D21B42EA520FB0022CFDA /* ViewModels */,
 				565D217D2EA51B980022CFDA /* Models */,
 				565D217A2EA50FEF0022CFDA /* Views */,
@@ -93,6 +96,14 @@
 				882A473D2E9F8F03002CBB80 /* ToDoList.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		88CBCC502EAA9A2000BE968F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				88CBCC512EAA9A3900BE968F /* StorageService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -172,6 +183,7 @@
 				565D21B62EA5210A0022CFDA /* ListViewModel.swift in Sources */,
 				565D217C2EA510010022CFDA /* ListView.swift in Sources */,
 				565D21772EA50FC10022CFDA /* ToDoList.xcdatamodeld in Sources */,
+				88CBCC522EAA9A3900BE968F /* StorageService.swift in Sources */,
 				565D21B32EA520F10022CFDA /* ToDoView.swift in Sources */,
 				565D21782EA50FC10022CFDA /* ToDoListApp.swift in Sources */,
 			);

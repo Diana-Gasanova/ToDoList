@@ -18,14 +18,13 @@ final class ToDoViewModel: ObservableObject {
             return dateFormatter.string(from: Date())
         }
         
-        
         self.todo = todo ?? ToDo(
-            id: Int.random(in: 0...100_000_000),
+            id: Int64.random(in: 0...100_000_000),
             todo: "",
             completed: false,
-            description: "",
+            descriptions: "",
             date: dateText,
-            userId: Int.random(in: 0...100_000_000)
+            userId: Int64.random(in: 0...100_000_000)
         )
     }
 }
@@ -62,7 +61,6 @@ struct ToDoView: View {
     
     var contentView: some View {
         ScrollView {
-          
             VStack(alignment: .leading) {
                 HStack {
                     Button(
@@ -81,43 +79,36 @@ struct ToDoView: View {
                     )
                     Spacer()
                 }
-                     .padding(.top, 5)
-                     .padding(.horizontal, 7)
-                
-                
+                .padding(.top, 5)
+                .padding(.horizontal, 7)
+
                 TextEditor(text: $viewModel.todo.todo)
-                    .frame(minHeight: 50)
+                    .frame(minHeight: 100)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.horizontal, 15)
                     .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        )
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                 
-                Text(viewModel.todo.date ?? "--/--/--")
+                Text(viewModel.todo.date)
                     .padding(.leading, 5)
                     .padding(.vertical, 10)
                 
-                
-                TextEditor(
-                    text: Binding(
-                        get: { viewModel.todo.description ?? "" },
-                        set: { viewModel.todo.description = $0 }
+                TextEditor(text: $viewModel.todo.descriptions)
+                    .frame(minHeight: 100)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 10)
+                    .keyboardType(.namePhonePad)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                     )
-                )
-                .padding(.horizontal, 15)
-                .padding(.vertical, 10)
-                .keyboardType(.namePhonePad)
-                .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                    )
-               
-                }
-                Spacer()
             }
+            Spacer()
         }
+    }
 }
 
 

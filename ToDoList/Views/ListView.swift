@@ -11,14 +11,7 @@ import Combine
 
 struct ListView: View {
     @StateObject var viewModel = ListViewModel()
-    @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default
-    )
-    
-    private var items: FetchedResults<Item>
-    
+
     var body: some View {
         NavigationView {
             contentView
@@ -29,8 +22,7 @@ struct ListView: View {
             isPresented: $viewModel.createViewPresented,
             destination: {
                 ToDoView(todo: nil) { toDo in
-                    viewModel.toDoList.append(toDo)
-                    viewModel.createViewPresented = false
+                    viewModel.create(todo: toDo)
                 }
             }
         )
@@ -38,10 +30,7 @@ struct ListView: View {
             item: $viewModel.editViewPresented,
             destination: { todoForEdit in
                 ToDoView(todo: todoForEdit) { editedTodo in
-                    if let index = viewModel.toDoList.firstIndex(where: { $0.id == editedTodo.id }) {
-                        viewModel.toDoList[index] = editedTodo
-                    }
-                    viewModel.editViewPresented = nil
+                    viewModel.update(todo: editedTodo)
                 }
             }
         )
@@ -50,18 +39,21 @@ struct ListView: View {
     var contentView: some View {
         VStack(alignment: .center) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 20) {
                     searchView
                     listView
                         .padding(.bottom, 8)
                 }
             }
-                bottomView
-            }
+            bottomView
         }
+    }
     
     var searchView: some View {
         TextField("Search", text: $viewModel.searchText)
+//            .textInputAutocapitalization(.none)
+//                .disableAutocorrection(true)
+//                .keyboardType(.asciiCapable)
             .padding(.vertical, 8)
             .padding(.horizontal, 36)
             .background(Color.gray.opacity(0.5))
@@ -79,7 +71,7 @@ struct ListView: View {
                         .padding(.trailing, 10)
                 }
             }
-            .padding(.horizontal, 15)
+            .padding(.horizontal, 20)
             .padding(.bottom, 15)
     }
     
@@ -88,22 +80,39 @@ struct ListView: View {
             ForEach(viewModel.filteredToDoList) { toDo in
                 VStack(alignment: .leading) {
                     HStack(alignment: .top) {
-                        Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
-                            .font(.system(size: 24))
-                            .foregroundStyle(toDo.completed ? .yellow : .gray)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                viewModel.toggleCompletion(for: toDo)
+                            }
+                        } label: {
+                            Image(systemName: toDo.completed ? "checkmark.circle" : "circle")
+                                .font(.system(size: 27))
+                                .foregroundStyle(toDo.completed ? .yellow : .gray)
+                        }
+                        // .buttonStyle(.plain)
                         
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 7) {
                             Text(toDo.todo)
+                                .font(.system(size: 18))
+                                .fontWeight(.semibold)
+                                .foregroundColor(toDo.completed ? .gray : .primary)
                                 .multilineTextAlignment(.leading)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .strikethrough(toDo.completed)
-                            Text(toDo.description ?? "-")
-                            Text(toDo.date ?? "--/--/--")
+                                .strikethrough(toDo.completed, color: toDo.completed ? .secondary : .primary)
+                            Text(toDo.descriptions)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(toDo.completed ? .gray : .primary)
+                            
+                            Text(toDo.date)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(toDo.completed ? .gray : .primary)
                         }
                     }
                     Divider()
-                        .background(Color.green)
-                        .padding(.vertical, 4)
+                        .background(.primary)
+                        .padding(.vertical, 15)
                 }
                 .padding(.horizontal, 20)
                 .onTapGesture {
@@ -115,10 +124,12 @@ struct ListView: View {
                     } label: {
                         Label("Редактировать", systemImage: "square.and.pencil")
                     }
-                    
-                    Button {
-//                        viewModel.isShareSheetPresented = true
-                    } label: {
+ 
+                    ShareLink(
+                        item: toDo.todo,
+                        message: Text("Поделиться"),
+                        preview: SharePreview("Задача", image: Image(systemName: "checkmark.circle"))
+                    ) {
                         Label("Поделиться", systemImage: "square.and.arrow.up")
                     }
                     
@@ -134,46 +145,38 @@ struct ListView: View {
     
     
     var bottomView: some View {
-            ZStack(alignment: .top) {
-           
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .overlay (
-                        Rectangle()
-                            .fill(Color.white.opacity(0.9))
-                            .frame(height: 0.5),
-                        alignment: .top
-                    )
-                    .ignoresSafeArea(edges: .bottom)
+        ZStack(alignment: .top) {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .bottom)
 
-                HStack {
-                    Spacer()
-                        .frame(width: 68) // выравнивание слева
+            HStack {
+                Spacer()
+                    .frame(width: 68)
 
-                    Spacer()
+                Spacer()
 
-                    Text("\(viewModel.toDoList.count) Задач")
-                        .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(Color(UIColor.label))
+                Text("\(viewModel.toDoList.count) Задач")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color(UIColor.label))
 
-                    Spacer()
+                Spacer()
 
-                    Button(action: {
-                        viewModel.createViewPresented = true
-                    }) {
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 22))
-                            .foregroundStyle(.yellow)
-                            .frame(width: 68, height: 44)
-                    }
+                Button(action: {
+                    viewModel.createViewPresented = true
+                }) {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.yellow)
+                        .frame(width: 68, height: 44)
                 }
-                
-                .padding(.horizontal, 8)
-                .padding(.bottom, 6)
             }
-            .frame(height: 60)
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 6)
         }
+        .frame(height: 60)
+        .frame(maxWidth: .infinity)
+    }
 }
 
 #Preview {
