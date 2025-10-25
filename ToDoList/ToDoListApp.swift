@@ -12,7 +12,14 @@ import CoreData
 struct ToDoListApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack(root: { ListView() })
+            NavigationStack(
+                root: {
+                    ListView(
+                        storageService: StorageService(),
+                        networkService: NetworkService()
+                    )
+                }
+            )
         }
     }
 }

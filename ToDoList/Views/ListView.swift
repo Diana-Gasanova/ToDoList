@@ -10,7 +10,19 @@ import CoreData
 import Combine
 
 struct ListView: View {
-    @StateObject var viewModel = ListViewModel()
+    @StateObject var viewModel: ListViewModel
+
+    init(
+        storageService: StorageServiceDataPassing,
+        networkService: NetworkServiceProtocol
+    ) {
+        _viewModel = StateObject(
+            wrappedValue: ListViewModel(
+                storageService: storageService,
+                networkService: networkService
+            )
+        )
+    }
 
     var body: some View {
         NavigationView {
@@ -180,5 +192,8 @@ struct ListView: View {
 }
 
 #Preview {
-    ListView()
+    ListView(
+        storageService: StorageService(),
+        networkService: NetworkService()
+    )
 }

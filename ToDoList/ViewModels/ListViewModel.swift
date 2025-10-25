@@ -24,31 +24,32 @@ final class ListViewModel: ObservableObject {
         return toDoList.filter { $0.todo.contains(searchText) }
     }
 
-    private let storageService: StorageServiceDataPassing = StorageService()
+    private let storageService: StorageServiceDataPassing
+    private let networkService: NetworkServiceProtocol
     private var toTosDownloaded = false
+
+    init(
+        storageService: StorageServiceDataPassing,
+        networkService: NetworkServiceProtocol
+    ) {
+        self.storageService = storageService
+        self.networkService = networkService
+    }
 
     func loadTasks() {
         guard !toTosDownloaded else { return }
         toTosDownloaded = true
 
-        guard
-            storageService.taskDownloadedAndSaved == false,
-            let url = URL(string: "https://dummyjson.com/todos")
-        else {
+        guard storageService.taskDownloadedAndSaved == false else {
             toDoList = storageService.fetchTodos()
             return
         }
-        
-        Task {
-            do {
-                let (data, response) = try await URLSession.shared.data(from: url)
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return}
 
-                let decoded = try JSONDecoder().decode(TodoResponse.self, from: data)
-                toDoList = decoded.todos
-                storageService.saveTodos(todos: decoded.todos)
-            } catch {
-                //
+        Task {
+            let todos = await networkService.fetchTodos()
+            toDoList = todos
+            if todos.isEmpty == false {
+                storageService.saveTodos(todos: todos)
             }
         }
     }
